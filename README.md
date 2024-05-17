@@ -9,6 +9,10 @@
 
 
 #### 使用
+```
+maven { url 'https://jitpack.io' }
+implementation 'com.github.CMzhizhe:TaskApplication:v1.0.1'
+```
 
 ###### 添加你的任务
 ```
@@ -17,7 +21,7 @@
   DistributeTasksManager.closeAllExecutor()
 ```
 
-//构造你的任务
+###### 构造你的任务
 ```
 class MyTask(private val taskId: String) : BaseTask() {
     companion object{
