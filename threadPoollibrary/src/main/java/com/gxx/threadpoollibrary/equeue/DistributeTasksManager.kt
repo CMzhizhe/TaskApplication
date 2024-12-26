@@ -9,15 +9,18 @@ import com.gxx.threadpoollibrary.equeue.model.RecorderModel
  * @author gaoxiaoxiong
  * @description 消息入库队列，同一个线程，处理同一个taskId
  */
-object DistributeTasksManager{
+class DistributeTasksManager(private var taskName:String = ""){
     private val TAG = "DistributeTasksManager"
     private val mListExecutorService = mutableListOf<ReceiveMessageTaskScheduler>()
     //定义线程名称
-    const val THREAD_DISTRIBUTE_PRE_NAME = "Distribute-Thread-"
+    private val THREAD_DISTRIBUTE_PRE_NAME = "Distribute-Thread-"
 
     init {
         for (index in 1..3) {
-            mListExecutorService.add(ReceiveMessageTaskScheduler("${THREAD_DISTRIBUTE_PRE_NAME}$index"))
+            if (taskName.isEmpty()){
+                taskName = THREAD_DISTRIBUTE_PRE_NAME
+            }
+            mListExecutorService.add(ReceiveMessageTaskScheduler("${taskName}$index"))
         }
     }
 

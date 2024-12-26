@@ -8,6 +8,7 @@ import com.gxx.threadpoollibrary.equeue.DistributeTasksManager
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
+    private val distributeTasksManager = DistributeTasksManager()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
@@ -17,7 +18,7 @@ class MainActivity : ComponentActivity() {
         }
 
         this.findViewById<Button>(R.id.bt_end).setOnClickListener {
-            DistributeTasksManager.closeAllExecutor()
+            distributeTasksManager.closeAllExecutor()
         }
 
     }
@@ -25,11 +26,11 @@ class MainActivity : ComponentActivity() {
     fun addTasks(){
         for(i in 0..10){
             if(i <2 ){
-                DistributeTasksManager.addTask(MyTask("gxx_813512412315616"))
+                distributeTasksManager.addTask(MyTask("gxx_813512412315616"))
             }else if(i in 3..5){
-                DistributeTasksManager.addTask(MyTask("gxx_feew2ef23ads_num_${i}"))
+                distributeTasksManager.addTask(MyTask("gxx_feew2ef23ads_num_${i}"))
             }else{
-                DistributeTasksManager.addTask(MyTask(UUID.randomUUID().toString()))
+                distributeTasksManager.addTask(MyTask(UUID.randomUUID().toString()))
             }
         }
 
