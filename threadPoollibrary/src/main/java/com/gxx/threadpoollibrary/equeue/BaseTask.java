@@ -16,6 +16,10 @@ public abstract class BaseTask implements ITask {
 
     private ReceiveMessageTaskScheduler mReceiveMessageTaskScheduler = null;
 
+    public ReceiveMessageTaskScheduler getReceiveMessageTaskScheduler(){
+        return mReceiveMessageTaskScheduler;
+    }
+
     /**
      * @date 创建时间: 2023/3/21
      * @author gaoxiaoxiong
@@ -53,6 +57,11 @@ public abstract class BaseTask implements ITask {
             mReceiveMessageTaskScheduler.removeTaskId(getTaskId());
         }
         doFinishTask(getTaskExecutorName(),getTaskId());
+        if (mReceiveMessageTaskScheduler !=null && mReceiveMessageTaskScheduler.getTaskQueue()!=null){
+            if (!mReceiveMessageTaskScheduler.findTaskId(getTaskId())){
+                emptyTask(getTaskId());
+            }
+        }
     }
 
     /**
@@ -116,6 +125,13 @@ public abstract class BaseTask implements ITask {
     @Override
     public String toString() {
         return "task name : " + getClass().getSimpleName() + " sequence : " + mSequence + " TaskPriority : " + mTaskPriority;
+    }
+
+    /**
+     * 完成所有taskId的任务的回调
+     */
+    public void emptyTask(String taskId){
+
     }
 
     /**
