@@ -67,6 +67,8 @@ class DistributeTasksManager(private var taskName:String = ""){
         baseTask.enqueue()
     }
 
+    fun getListExecutorService() = mListExecutorService
+
     /**
      * @date 创建时间: 2023/3/21
      * @author gaoxiaoxiong
