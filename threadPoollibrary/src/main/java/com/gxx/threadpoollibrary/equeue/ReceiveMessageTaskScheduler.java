@@ -1,5 +1,6 @@
 package com.gxx.threadpoollibrary.equeue;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -10,12 +11,14 @@ import com.gxx.threadpoollibrary.equeue.inter.ITask;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReceiveMessageTaskScheduler {
     private String TAG = "ReceiveMessageTask";
     private final BlockTaskQueue mTaskQueue = new BlockTaskQueue();
-    private final CopyOnWriteArrayList<String> mTaskIdList= new CopyOnWriteArrayList<>();//记录了，此线程，正在跑的taskId
+    private final ConcurrentHashMap<String, AtomicInteger> mTaskIdList = new ConcurrentHashMap<>();//记录了，此线程，正在跑的taskId
     private ShowTaskExecutor mExecutor = null;
     private String mTaskExecutorName = null;//自定义线程的名称
 
@@ -38,7 +41,9 @@ public class ReceiveMessageTaskScheduler {
             }
             return;
         }
-        mTaskIdList.add(task.getTaskId());
+        // 增加计数
+        mTaskIdList.computeIfAbsent(task.getTaskId(), k -> new AtomicInteger(0))
+                .incrementAndGet();
         //因为TaskScheduler这里写成单例，如果isRunning改成false的话，不判断一下，就会一直都是false
         if (!mExecutor.isRunning()) {
             mExecutor.startRunning();
@@ -62,15 +67,14 @@ public class ReceiveMessageTaskScheduler {
      * @description 移除任务
      */
     public void removeTaskId(String taskId){
-       Iterator<String> iterable =  mTaskIdList.iterator();
-       while (iterable.hasNext()){
-           if (iterable.next().equals(taskId)){
-               //判断是否正在running
-
-               iterable.remove();
-               break;
-           }
-       }
+        if (taskId == null) return;
+        AtomicInteger count = mTaskIdList.get(taskId);
+        if (count != null) {
+            int remaining = count.decrementAndGet();
+            if (remaining <= 0) {
+                mTaskIdList.remove(taskId, count); // 仅当值仍为 count 时才移除（CAS 安全）
+            }
+        }
     }
 
     /**
@@ -79,12 +83,7 @@ public class ReceiveMessageTaskScheduler {
      * @description 发现taskId
      */
     public boolean findTaskId(String taskId){
-        for (String s : mTaskIdList) {
-            if (s.equals(taskId)) {
-                return true;
-            }
-        }
-        return false;
+        return mTaskIdList.containsKey(taskId);
     }
 
     /**
@@ -93,7 +92,11 @@ public class ReceiveMessageTaskScheduler {
      * @description 任务个数
      */
     public int taskSize(){
-        return mTaskIdList.size();
+        int total = 0;
+        for (AtomicInteger count : mTaskIdList.values()) {
+            total += count.get(); // 注意：这里不是 size()，而是所有计数之和
+        }
+        return total;
     }
 
     public void resetExecutor() {
