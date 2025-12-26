@@ -10,11 +10,12 @@ import com.gxx.threadpoollibrary.equeue.inter.ITask;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ReceiveMessageTaskScheduler {
     private String TAG = "ReceiveMessageTask";
     private final BlockTaskQueue mTaskQueue = new BlockTaskQueue();
-    private final List<String> mTaskIdList= new ArrayList<String>();//记录了，此线程，正在跑的taskId
+    private final CopyOnWriteArrayList<String> mTaskIdList= new CopyOnWriteArrayList<>();//记录了，此线程，正在跑的taskId
     private ShowTaskExecutor mExecutor = null;
     private String mTaskExecutorName = null;//自定义线程的名称
 
