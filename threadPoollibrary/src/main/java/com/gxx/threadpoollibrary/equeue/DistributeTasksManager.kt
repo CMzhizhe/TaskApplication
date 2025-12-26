@@ -25,6 +25,18 @@ class DistributeTasksManager(private var taskName:String = ""){
     }
 
     /**
+     * 是否还有在执行的任务
+     * @return true 有在执行的任务
+     */
+    fun isRunningTask(): Boolean{
+        var count = 0
+        for (scheduler in mListExecutorService) {
+            count += scheduler.taskSize()
+        }
+        return count > 0
+    }
+
+    /**
      * @date 创建时间: 2023/3/21
      * @author gaoxiaoxiong
      * @description 添加任务，需要在主线程调用
