@@ -42,6 +42,11 @@ public abstract class BaseTask implements ITask {
     public void doTask() {
         mTaskStatus = true;
         doAsyTask(getTaskExecutorName(),getTaskId());
+        if (mReceiveMessageTaskScheduler !=null && mReceiveMessageTaskScheduler.getTaskQueue()!=null){
+            if (!mReceiveMessageTaskScheduler.findTaskId(getTaskId())){
+                emptyTask(getTaskId());
+            }
+        }
     }
 
     /**
@@ -57,11 +62,6 @@ public abstract class BaseTask implements ITask {
             mReceiveMessageTaskScheduler.removeTaskId(getTaskId());
         }
         doFinishTask(getTaskExecutorName(),getTaskId());
-        if (mReceiveMessageTaskScheduler !=null && mReceiveMessageTaskScheduler.getTaskQueue()!=null){
-            if (!mReceiveMessageTaskScheduler.findTaskId(getTaskId())){
-                emptyTask(getTaskId());
-            }
-        }
     }
 
     /**
